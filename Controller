@@ -1,0 +1,122 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Controller : MonoBehaviour
+{
+    // variables
+    private Vector3 crouchScale = new Vector3(1, 0.5f, 1);
+    private Vector3 playerScale;
+    public float slideForce = 400;
+    public float slideCounterMovement = 0.2f;
+    public float speed = 12f;
+    private Vector3 normalVector = Vector3.up;
+    private Vector3 wallNormalVector;
+    public float Jump = 5.3f;
+    private bool JumpIsReady = true;
+    public int Go = 5;
+
+    public int Back = 5;
+
+    private Rigidbody rb;
+    public int right = 5;
+    public bool grounded;
+    public Rigidbody Rd;
+    public int left = 5;
+    private Vector3 temp;
+    public Transform RealPlayer;
+    // Start is called before the first frame update
+    void Start()
+    {
+
+    }
+
+    private void MyInput()
+    {
+
+        //Crouching
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+            StartCrouch();
+        if (Input.GetKeyUp(KeyCode.LeftControl))
+            StopCrouch();
+    }
+
+    private void StartCrouch()
+    {
+        transform.localScale = crouchScale;
+        transform.position = new Vector3(transform.position.x, transform.position.y - 0.5f, transform.position.z);
+        if (rb.velocity.magnitude > 0.5f)
+        {
+            if (grounded)
+            {
+                rb.AddForce(RealPlayer.transform.forward * slideForce);
+            }
+        }
+    }
+    private void StopCrouch()
+    {
+        transform.localScale = playerScale;
+        transform.position = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
+    }
+    //Make sure to not do infinity jump
+    private void OnTriggerEnter(Collider col)
+    {
+
+        if (col.gameObject.tag == "Ground")
+        {
+            JumpIsReady = true;
+        }
+
+    }
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            temp = transform.localScale;
+
+            temp.y += -1f;
+
+            transform.localScale = temp;
+
+
+
+        }
+
+        if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            temp = transform.localScale;
+
+            temp.y += 1f;
+
+            transform.localScale = temp;
+        }
+        //Check Collision
+        if (Input.GetKeyDown(KeyCode.Space) && JumpIsReady)
+        {
+            GetComponent<Rigidbody>().AddForce(Vector3.up * Jump, ForceMode.VelocityChange);
+            JumpIsReady = false;
+        }
+        //To lazy to delete
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            GetComponent<Rigidbody>().AddForce(Vector3.forward * Go, ForceMode.VelocityChange);
+        }
+        //PlayerMovement
+        //float xDirection = Input.GetAxis("Horizontal");
+        //float zDirection = Input.GetAxis("Vertical");
+
+        //Vector3 moveDirection = new Vector3(xDirection, 0f, zDirection);
+
+        //transform.position += moveDirection * speed;
+        //[Content Deleted]
+
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");
+
+        Vector3 move = new Vector3(x, 0f, z);
+        move = transform.right * x + transform.forward * z;
+        transform.position += move * speed;
+
+        
+    }
+}
